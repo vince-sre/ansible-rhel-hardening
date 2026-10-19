@@ -1,0 +1,5 @@
+auditd_max_log_file: 32
+auditd_num_logs: 10
+auditd_space_left_action: email
+auditd_admin_space_left_action: single
+auditd_immutable: true

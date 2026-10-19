@@ -1,0 +1,11 @@
+galaxy_info:
+  author: Vince G
+  description: auditd configuration and CIS audit rules for RHEL 8/9.
+  license: MIT
+  min_ansible_version: "2.15"
+  platforms:
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+dependencies: []

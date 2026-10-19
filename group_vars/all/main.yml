@@ -1,0 +1,2 @@
+# Kubernetes worker nodes need forwarding; flip this in their group_vars.
+os_baseline_allow_ip_forward: false

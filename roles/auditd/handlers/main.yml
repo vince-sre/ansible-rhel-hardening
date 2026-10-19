@@ -1,0 +1,4 @@
+# auditd refuses systemctl restart; augenrules is the supported reload path.
+- name: Reload audit rules
+  ansible.builtin.command: augenrules --load
+  changed_when: true

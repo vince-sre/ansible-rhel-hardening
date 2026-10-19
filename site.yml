@@ -1,0 +1,17 @@
+- name: Harden RHEL servers
+  hosts: rhel_servers
+  become: true
+  gather_facts: true
+
+  pre_tasks:
+    - name: Show target
+      ansible.builtin.debug:
+        msg: "Hardening {{ inventory_hostname }} ({{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }})"
+
+  roles:
+    - role: os_baseline
+      tags: [baseline]
+    - role: ssh_hardening
+      tags: [ssh]
+    - role: auditd
+      tags: [audit]

@@ -1,0 +1,40 @@
+- name: Install audit packages
+  ansible.builtin.dnf:
+    name:
+      - audit
+      - audit-libs
+    state: present
+
+- name: Configure auditd log retention
+  ansible.builtin.lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: "^{{ item.key }}\\s*="
+    line: "{{ item.key }} = {{ item.value }}"
+  loop:
+    - { key: max_log_file, value: "{{ auditd_max_log_file }}" }
+    - { key: num_logs, value: "{{ auditd_num_logs }}" }
+    - { key: max_log_file_action, value: keep_logs }
+    - { key: space_left_action, value: "{{ auditd_space_left_action }}" }
+    - { key: admin_space_left_action, value: "{{ auditd_admin_space_left_action }}" }
+  loop_control:
+    label: "{{ item.key }}"
+  notify: Reload audit rules
+
+- name: Deploy CIS audit rules
+  ansible.builtin.template:
+    src: 50-cis.rules.j2
+    dest: /etc/audit/rules.d/50-cis.rules
+    owner: root
+    group: root
+    mode: "0600"
+  notify: Reload audit rules
+
+- name: Ensure auditing starts before auditd (kernel cmdline)
+  ansible.builtin.command: grubby --update-kernel=ALL --args="audit=1 audit_backlog_limit=8192"
+  changed_when: false
+
+- name: Enable auditd
+  ansible.builtin.service:
+    name: auditd
+    state: started
+    enabled: true
