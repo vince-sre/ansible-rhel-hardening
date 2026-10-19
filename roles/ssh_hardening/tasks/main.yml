@@ -1,0 +1,41 @@
+- name: Install login banner
+  ansible.builtin.copy:
+    dest: "{{ ssh_hardening_banner_path }}"
+    content: |
+      Authorized use only. Activity on this system is monitored and logged.
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Deploy sshd hardening drop-in
+  ansible.builtin.template:
+    src: 50-hardening.conf.j2
+    dest: /etc/ssh/sshd_config.d/50-hardening.conf
+    owner: root
+    group: root
+    mode: "0600"
+    validate: /usr/sbin/sshd -t -f %s
+  notify: Restart sshd
+
+- name: Restrict permissions on sshd_config
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: "0600"
+
+- name: Find SSH host private keys
+  ansible.builtin.find:
+    paths: /etc/ssh
+    patterns: "ssh_host_*_key"
+  register: ssh_hardening_host_keys
+
+- name: Restrict SSH host private key permissions
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    owner: root
+    group: ssh_keys
+    mode: "0640"
+  loop: "{{ ssh_hardening_host_keys.files }}"
+  loop_control:
+    label: "{{ item.path }}"

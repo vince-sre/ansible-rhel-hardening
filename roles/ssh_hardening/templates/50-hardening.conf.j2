@@ -1,0 +1,22 @@
+# {{ ansible_managed }}
+# Drop-in loaded by the stock sshd_config "Include /etc/ssh/sshd_config.d/*.conf".
+Port {{ ssh_hardening_port }}
+PermitRootLogin {{ ssh_hardening_permit_root_login }}
+PasswordAuthentication {{ ssh_hardening_password_authentication }}
+PermitEmptyPasswords no
+KbdInteractiveAuthentication no
+HostbasedAuthentication no
+IgnoreRhosts yes
+X11Forwarding no
+AllowTcpForwarding no
+MaxAuthTries {{ ssh_hardening_max_auth_tries }}
+MaxStartups 10:30:60
+LoginGraceTime {{ ssh_hardening_login_grace_time }}
+ClientAliveInterval {{ ssh_hardening_client_alive_interval }}
+ClientAliveCountMax {{ ssh_hardening_client_alive_count_max }}
+LogLevel VERBOSE
+Banner {{ ssh_hardening_banner_path }}
+AllowGroups {{ ssh_hardening_allow_groups | join(' ') }}
+Ciphers {{ ssh_hardening_ciphers | join(',') }}
+MACs {{ ssh_hardening_macs | join(',') }}
+KexAlgorithms {{ ssh_hardening_kex | join(',') }}
