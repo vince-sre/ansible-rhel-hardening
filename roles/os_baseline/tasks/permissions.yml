@@ -1,0 +1,39 @@
+- name: Enforce ownership and mode on sensitive files
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    owner: root
+    group: root
+    mode: "{{ item.mode }}"
+  loop:
+    - { path: /etc/passwd, mode: "0644" }
+    - { path: /etc/group, mode: "0644" }
+    - { path: /etc/shadow, mode: "0000" }
+    - { path: /etc/gshadow, mode: "0000" }
+    - { path: /etc/crontab, mode: "0600" }
+  loop_control:
+    label: "{{ item.path }}"
+
+- name: Find SUID/SGID binaries on local filesystems
+  ansible.builtin.command: >-
+    find / -xdev -type f ( -perm -4000 -o -perm -2000 ) -print
+  register: os_baseline_suid
+  changed_when: false
+  failed_when: false
+
+- name: Report SUID/SGID binaries not on the approved list
+  ansible.builtin.debug:
+    msg: "Unexpected SUID/SGID binaries: {{ os_baseline_suid.stdout_lines | difference(os_baseline_suid_allowlist) }}"
+  when: os_baseline_suid.stdout_lines | difference(os_baseline_suid_allowlist) | length > 0
+
+- name: Find world-writable directories without the sticky bit
+  ansible.builtin.command: >-
+    find / -xdev -type d -perm -0002 ! -perm -1000 -print
+  register: os_baseline_ww
+  changed_when: false
+  failed_when: false
+
+- name: Set the sticky bit on world-writable directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    mode: "+t"
+  loop: "{{ os_baseline_ww.stdout_lines }}"

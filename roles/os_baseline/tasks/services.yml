@@ -1,0 +1,31 @@
+- name: Gather service facts
+  ansible.builtin.service_facts:
+
+- name: Disable services that are not needed on servers
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: false
+    masked: true
+  loop: "{{ os_baseline_disabled_services }}"
+  when: item in ansible_facts.services or (item ~ '.service') in ansible_facts.services
+
+- name: Install chrony
+  ansible.builtin.dnf:
+    name: chrony
+    state: present
+
+- name: Configure chrony servers
+  ansible.builtin.template:
+    src: chrony.conf.j2
+    dest: /etc/chrony.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart chronyd
+
+- name: Enable chronyd
+  ansible.builtin.service:
+    name: chronyd
+    state: started
+    enabled: true

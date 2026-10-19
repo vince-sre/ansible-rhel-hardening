@@ -1,0 +1,4 @@
+# {{ ansible_managed }}
+{% for k, v in os_baseline_pwquality.items() %}
+{{ k }} = {{ v }}
+{% endfor %}

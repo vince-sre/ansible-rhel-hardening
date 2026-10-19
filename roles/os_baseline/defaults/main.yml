@@ -1,0 +1,83 @@
+# Kernel modules for filesystems and protocols that servers don't need.
+os_baseline_disabled_modules:
+  - cramfs
+  - freevxfs
+  - hfs
+  - hfsplus
+  - jffs2
+  - squashfs
+  - udf
+  - usb-storage
+  - dccp
+  - sctp
+  - rds
+  - tipc
+
+os_baseline_disabled_services:
+  - avahi-daemon
+  - cups
+  - rpcbind
+  - telnet.socket
+  - tftp.socket
+  - vsftpd
+
+os_baseline_sysctl:
+  net.ipv4.ip_forward: 0
+  net.ipv4.conf.all.send_redirects: 0
+  net.ipv4.conf.default.send_redirects: 0
+  net.ipv4.conf.all.accept_redirects: 0
+  net.ipv4.conf.default.accept_redirects: 0
+  net.ipv4.conf.all.secure_redirects: 0
+  net.ipv4.conf.all.accept_source_route: 0
+  net.ipv4.conf.all.log_martians: 1
+  net.ipv4.conf.all.rp_filter: 1
+  net.ipv4.icmp_echo_ignore_broadcasts: 1
+  net.ipv4.icmp_ignore_bogus_error_responses: 1
+  net.ipv4.tcp_syncookies: 1
+  net.ipv6.conf.all.accept_ra: 0
+  net.ipv6.conf.all.accept_redirects: 0
+  kernel.randomize_va_space: 2
+  kernel.dmesg_restrict: 1
+  kernel.kptr_restrict: 2
+  kernel.yama.ptrace_scope: 1
+  fs.suid_dumpable: 0
+  fs.protected_hardlinks: 1
+  fs.protected_symlinks: 1
+
+# Set to true on Kubernetes nodes and routers, which need forwarding.
+os_baseline_allow_ip_forward: false
+
+os_baseline_password_max_days: 90
+os_baseline_password_min_days: 1
+os_baseline_password_warn_age: 7
+os_baseline_pwquality:
+  minlen: 14
+  minclass: 4
+  maxrepeat: 3
+  dictcheck: 1
+os_baseline_faillock_deny: 5
+os_baseline_faillock_unlock_time: 900
+os_baseline_umask: "027"
+
+os_baseline_chrony_servers:
+  - 0.rhel.pool.ntp.org
+  - 1.rhel.pool.ntp.org
+
+os_baseline_crypto_policy: DEFAULT:NO-SHA1
+
+# Known-good SUID/SGID binaries on a minimal RHEL 9 install; anything else is reported.
+os_baseline_suid_allowlist:
+  - /usr/bin/chage
+  - /usr/bin/gpasswd
+  - /usr/bin/newgrp
+  - /usr/bin/mount
+  - /usr/bin/umount
+  - /usr/bin/su
+  - /usr/bin/sudo
+  - /usr/bin/passwd
+  - /usr/bin/crontab
+  - /usr/bin/write
+  - /usr/sbin/unix_chkpwd
+  - /usr/sbin/pam_timestamp_check
+  - /usr/libexec/openssh/ssh-keysign
+  - /usr/libexec/utempter/utempter

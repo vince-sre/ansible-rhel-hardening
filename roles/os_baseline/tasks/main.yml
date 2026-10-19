@@ -1,0 +1,18 @@
+- name: Assert supported platform
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['os_family'] == 'RedHat'
+      - ansible_facts['distribution_major_version'] | int >= 8
+    fail_msg: "os_baseline supports RHEL-family 8 and 9 only"
+
+- name: Kernel and filesystem hardening
+  ansible.builtin.import_tasks: kernel.yml
+
+- name: Authentication and password policy
+  ansible.builtin.import_tasks: auth.yml
+
+- name: Services and time sync
+  ansible.builtin.import_tasks: services.yml
+
+- name: File permission audit
+  ansible.builtin.import_tasks: permissions.yml

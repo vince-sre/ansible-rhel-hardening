@@ -1,0 +1,37 @@
+- name: Disable unneeded kernel modules
+  ansible.builtin.copy:
+    dest: /etc/modprobe.d/cis-disabled.conf
+    content: |
+      # {{ ansible_managed }}
+      {% for m in os_baseline_disabled_modules %}
+      install {{ m }} /bin/false
+      blacklist {{ m }}
+      {% endfor %}
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Apply sysctl hardening
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ (item.key == 'net.ipv4.ip_forward' and os_baseline_allow_ip_forward) | ternary(1, item.value) }}"
+    sysctl_file: /etc/sysctl.d/60-cis-hardening.conf
+    state: present
+    reload: true
+  loop: "{{ os_baseline_sysctl | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+
+- name: Set system-wide crypto policy
+  ansible.builtin.command: update-crypto-policies --set {{ os_baseline_crypto_policy }}
+  register: os_baseline_crypto
+  changed_when: "'Setting system policy' in os_baseline_crypto.stdout"
+  when: ansible_facts['distribution_major_version'] | int >= 9
+
+- name: Mount /tmp with nodev,nosuid,noexec
+  ansible.posix.mount:
+    path: /tmp
+    src: tmpfs
+    fstype: tmpfs
+    opts: defaults,rw,nosuid,nodev,noexec,relatime,size=2G
+    state: present
