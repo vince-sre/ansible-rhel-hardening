@@ -3,4 +3,3 @@
 __pycache__/
 .venv/
 inventory/*.local.ini
-collections/ansible_collections/

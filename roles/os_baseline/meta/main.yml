@@ -1,6 +1,6 @@
 galaxy_info:
   author: Vince G
-  description: CIS-aligned OS baseline for RHEL 8/9: kernel, auth, services, permissions.
+  description: "CIS-aligned OS baseline for RHEL 8/9: kernel, auth, services, permissions."
   license: MIT
   min_ansible_version: "2.15"
   platforms:
